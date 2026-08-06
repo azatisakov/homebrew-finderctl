@@ -1,0 +1,68 @@
+name: Homebrew Formula CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  brew-test:
+    runs-on: macos-13
+    strategy:
+      fail-fast: false
+      matrix:
+        macos: [macos-13, macos-14, macos-15]
+    runs-on: ${{ matrix.macos }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Homebrew tools
+        run: |
+          sudo chown -R $(whoami) $(brew --prefix)/*
+          brew install homebrew/core/ruby
+          gem install brew-audit
+
+      - name: Build sdist
+        run: |
+          uv sync
+          uv build --sdist
+
+      - name: Compute SHA256
+        id: sha
+        run: |
+          export SHA=$(shasum -a 256 dist/*.tar.gz | awk '{print $1}')
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+          echo "SHA: $SHA"
+
+      - name: Get dependency SHAs from PyPI
+        id: deps
+        run: |
+          export TYPIL_URL=$(python3 -c "import json,urllib.request; d=json.load(urllib.request.urlopen('https://pypi.org/pypi/typer/json')); v=d['info']['version']; urls=[f['url'] for f in d['releases'][v] if f['packagetype']=='sdist']; print(urls[0])")
+          export TYPIL_SHA=$(python3 -c "import json,urllib.request; d=json.load(urllib.request.urlopen('https://pypi.org/pypi/typer/json')); v=d['info']['version']; shas=[f['digests']['sha256'] for f in d['releases'][v] if f['packagetype']=='sdist']; print(shas[0])")
+          echo "typer_url=$TYPIL_URL" >> $GITHUB_OUTPUT
+          echo "typer_sha=$TYPIL_SHA" >> $GITHUB_OUTPUT
+
+      - name: Update formula SHA
+        run: |
+          sed -i '' "s/sha256 \"[a-f0-9]*\"/sha256 \"${{ steps.sha.outputs.sha }}\"/" Formula/FinderCTL.rb
+
+      - name: Brew audit
+        run: |
+          brew audit --strict --online --new Formula/FinderCTL.rb
+
+      - name: Brew style
+        run: |
+          brew style Formula/FinderCTL.rb
+
+      - name: Install and test
+        run: |
+          brew tap azatisakov/finderctl
+          HOMEBREW_BUILD_FROM_SOURCE=1 brew install finderctl
+          finderctl --version
