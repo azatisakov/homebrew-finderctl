@@ -4,7 +4,7 @@ class Finderctl < Formula
   desc "Manage macOS Finder preferences safely"
   homepage "https://github.com/azatisakov/FinderCTL"
   url "https://github.com/azatisakov/FinderCTL/archive/v1.0.0.tar.gz"
-  sha256 "751585b822223147266d826459876dbe3e783e0fd379bacb417e8a11072492d3"
+  sha256 "b6985ff01c51e3385bafb206059eb1d2517ce3e62a3ff6c225bc2148e0ad23bd"
   license "MIT"
 
   depends_on "python@3.13"
