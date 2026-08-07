@@ -43,7 +43,7 @@ class Finderctl < Formula
     end
 
     # Install the package itself
-    system pip, "install", "--no-deps", path
+    system pip, "install", "--no-deps", buildpath
 
     # Symlink the CLI
     (bin/"finderctl").unlink if (bin/"finderctl").exist?

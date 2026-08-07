@@ -99,7 +99,7 @@ class Finderctl < Formula
       system pip, "install", "--no-deps", r.name, r.cached_download
     end
 
-    system pip, "install", "--no-deps", path
+    system pip, "install", "--no-deps", buildpath
 
     (bin/"finderctl").unlink if (bin/"finderctl").exist?
     ln_s venv_bin/"finderctl", bin/"finderctl"
