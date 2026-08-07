@@ -17,6 +17,11 @@ class Finderctl < Formula
     sha256 "a7380896ea1e880f7ba07c5cdc24bd1530fb86836cad0be531f3e80e2d721ac5"
   end
 
+  resource "mac-alias" do
+    url "https://files.pythonhosted.org/packages/fb/c9/2c28b2ea968a6bbc4327c0360b746fda3757cb11cf287d00078cf81a27e2e/mac_alias-2.2.3.tar.gz"
+    sha256 "1c7fa367687d66979f2ce4d1a8b2716cf1c9fb811741cab3cf3ca356555c2beb"
+  end
+
   resource "shellingham" do
     url "https://files.pythonhosted.org/packages/58/15/8b3609fd3830ef7b27b655beb4b4e9c62313a4e8da8c676e142cc210d58e/shellingham-1.5.4.tar.gz"
     sha256 "8dbca0739d487e5bd35ab3ca4b36e11c4078f3a234bfce294b0a0291363404de"
