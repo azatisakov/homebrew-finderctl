@@ -37,10 +37,12 @@ class Finderctl < Formula
     # Install pip into the venv
     system venv_bin/"python3", "-m", "ensurepip", "--default-pip"
 
-    # Install dependencies
+    # Install dependencies (typer needs its deps: annotated_doc, click, shellingham, etc.)
     resources.each do |r|
       system pip, "install", "--no-deps", r.name, r.cached_download
     end
+    typer_resource = resources.find { |r| r.name == "typer" }
+    system pip, "install", typer_resource.cached_download if typer_resource
 
     # Install the package itself
     system pip, "install", "--no-deps", buildpath

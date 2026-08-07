@@ -98,8 +98,8 @@ class Finderctl < Formula
     resources.each do |r|
       system pip, "install", "--no-deps", r.name, r.cached_download
     end
-
-    system pip, "install", "--no-deps", buildpath
+    typer_resource = resources.find { |r| r.name == "typer" }
+    system pip, "install", typer_resource.cached_download if typer_resource
 
     (bin/"finderctl").unlink if (bin/"finderctl").exist?
     bin.mkpath
