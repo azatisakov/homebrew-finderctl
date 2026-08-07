@@ -47,6 +47,7 @@ class Finderctl < Formula
 
     # Symlink the CLI
     (bin/"finderctl").unlink if (bin/"finderctl").exist?
+    bin.mkpath
     ln_s venv_bin/"finderctl", bin/"finderctl"
   end
 
