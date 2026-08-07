@@ -38,7 +38,7 @@ jobs:
         id: deps
         run: |
           echo "Getting SHAs from PyPI..."
-          for pkg in typer ds-store click shellingham mac-alias; do
+          for pkg in typer ds-store click shellingham; do
             URL=$(python3 -c "import json,urllib.request; d=json.load(urllib.request.urlopen('https://pypi.org/pypi/$pkg/json')); v=d['info']['version']; urls=[f['url'] for f in d['releases'][v] if f['packagetype']=='sdist']; print(urls[0])")
             SHA=$(python3 -c "import json,urllib.request; d=json.load(urllib.request.urlopen('https://pypi.org/pypi/$pkg/json')); v=d['info']['version']; shas=[f['digests']['sha256'] for f in d['releases'][v] if f['packagetype']=='sdist']; print(shas[0])")
             echo "${pkg}_url=${URL}" >> $GITHUB_OUTPUT
@@ -87,11 +87,6 @@ class Finderctl < Formula
     sha256 "${{ steps.deps.outputs.shellingham_sha }}"
   end
 
-  resource "mac-alias" do
-    url "${{ steps.deps.outputs.mac-alias_url }}"
-    sha256 "${{ steps.deps.outputs.mac-alias_sha }}"
-  end
-
   def install
     venv = libexec
     system "python3.13", "-m", "venv", "--without-pip", venv
@@ -105,6 +100,10 @@ class Finderctl < Formula
     end
     typer_resource = resources.find { |r| r.name == "typer" }
     system pip, "install", typer_resource.cached_download if typer_resource
+
+    system pip, "install", "--no-deps", "mac-alias"
+
+    system pip, "install", "--no-deps", buildpath
 
     (bin/"finderctl").unlink if (bin/"finderctl").exist?
     bin.mkpath
