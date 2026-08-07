@@ -1,6 +1,4 @@
 class Finderctl < Formula
-  include Language::Python::Virtualenv
-
   desc "Manage macOS Finder preferences safely"
   homepage "https://github.com/azatisakov/FinderCTL"
   url "https://github.com/azatisakov/FinderCTL/archive/v1.0.0.tar.gz"
@@ -30,12 +28,26 @@ class Finderctl < Formula
   end
 
   def install
-    venv = virtualenv_create(libexec, "python3.13")
-    venv.pip_install_and_link "click==8.4.2", "ds-store==1.3.3", "typer==0.27.1", "shellingham==1.5.4"
-    venv.pip_install_and_link path
+    # Create virtualenv manually to avoid Homebrew Ruby API issues on Tahoe
+    venv = libexec
+    system "python3.13", "-m", "venv", "--without-pip", venv
+    venv_bin = venv/"bin"
+    pip = venv_bin/"pip"
 
+    # Install pip into the venv
+    system venv_bin/"python3", "-m", "ensurepip", "--default-pip"
+
+    # Install dependencies
+    resources.each do |r|
+      system pip, "install", "--no-deps", r.name, r.cached_download
+    end
+
+    # Install the package itself
+    system pip, "install", "--no-deps", path
+
+    # Symlink the CLI
     (bin/"finderctl").unlink if (bin/"finderctl").exist?
-    ln_s venv.bin/"finderctl", bin/"finderctl"
+    ln_s venv_bin/"finderctl", bin/"finderctl"
   end
 
   test do
